@@ -50,6 +50,9 @@ class NewDownload(
     val sha256: String? = null,
     val mode: AddMode = AddMode.AUTO,
     val height: Int = 0,
+    val referer: String? = null,
+    val cookie: String? = null,
+    val userAgent: String? = null,
 )
 
 /** Owns the download list, the queue, settings and running tasks. One instance per process. */
@@ -119,6 +122,9 @@ class DownloadManager(private val app: Application) {
                 kind = kind,
                 audioOnly = kind == Kind.VIDEO && n.mode == AddMode.AUDIO,
                 videoHeight = n.height,
+                referer = n.referer,
+                cookie = n.cookie,
+                userAgent = n.userAgent,
             )
         }
         _items.update { it + created }

@@ -32,6 +32,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
@@ -119,6 +120,7 @@ fun MdmRoot(
     var showSettings by remember { mutableStateOf(false) }
     var addOpen by remember { mutableStateOf(false) }
     var addInitial by remember { mutableStateOf("") }
+    var browserUrl by remember { mutableStateOf<String?>(null) }
     val ctx = LocalContext.current
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) {
@@ -127,7 +129,10 @@ fun MdmRoot(
         }
     }
 
-    if (showSettings) {
+    val browsing = browserUrl
+    if (browsing != null) {
+        BrowserScreen(mgr, browsing) { browserUrl = null }
+    } else if (showSettings) {
         BackHandler { showSettings = false }
         SettingsScreen(settings, mgr::updateSettings) { showSettings = false }
     } else {
@@ -137,6 +142,7 @@ fun MdmRoot(
             onOpenSettings = { showSettings = true },
             onAdd = { addInitial = ""; addOpen = true },
             onPickTorrent = { picker.launch(arrayOf("*/*")) },
+            onOpenBrowser = { browserUrl = "" },
             onUpdateVideo = {
                 Toast.makeText(ctx, "Updating yt-dlp…", Toast.LENGTH_SHORT).show()
                 mgr.updateVideoEngine { msg -> Toast.makeText(ctx, msg, Toast.LENGTH_LONG).show() }
@@ -152,9 +158,11 @@ fun MdmRoot(
     }
 
     if (inc.isNotEmpty()) {
-        AddDialog(initial = inc.joinToString("\n"), onDismiss = onIncomingDone, onConfirm = onAddConfirm)
+        AddDialog(initial = inc.joinToString("\n"), onDismiss = onIncomingDone, onConfirm = onAddConfirm,
+            onBrowse = { browserUrl = it })
     } else if (addOpen) {
-        AddDialog(initial = addInitial, onDismiss = { addOpen = false }, onConfirm = onAddConfirm)
+        AddDialog(initial = addInitial, onDismiss = { addOpen = false }, onConfirm = onAddConfirm,
+            onBrowse = { browserUrl = it })
     }
 
     clipText?.let { url ->
@@ -178,6 +186,7 @@ fun MainScreen(
     onOpenSettings: () -> Unit,
     onAdd: () -> Unit,
     onPickTorrent: () -> Unit,
+    onOpenBrowser: () -> Unit,
     onUpdateVideo: () -> Unit,
 ) {
     var statusFilter by remember { mutableStateOf(StatusFilter.ALL) }
@@ -202,6 +211,7 @@ fun MainScreen(
             TopAppBar(
                 title = { Text("Mister DM") },
                 actions = {
+                    IconButton(onClick = onOpenBrowser) { Icon(Icons.Default.Language, "Browser") }
                     IconButton(onClick = onOpenSettings) { Icon(Icons.Default.Settings, "Settings") }
                     IconButton(onClick = { menuOpen = true }) { Icon(Icons.Default.MoreVert, "More") }
                     DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
@@ -370,6 +380,7 @@ fun AddDialog(
     initial: String,
     onDismiss: () -> Unit,
     onConfirm: (AddForm) -> Unit,
+    onBrowse: (String) -> Unit,
 ) {
     var text by remember { mutableStateOf(initial) }
     var name by remember { mutableStateOf("") }
@@ -440,7 +451,15 @@ fun AddDialog(
                 onDismiss()
             }) { Text("Add") }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        dismissButton = {
+            Row {
+                val first = urls.firstOrNull { it.startsWith("http") }
+                if (first != null) {
+                    TextButton(onClick = { onBrowse(first); onDismiss() }) { Text("Open in browser") }
+                }
+                TextButton(onClick = onDismiss) { Text("Cancel") }
+            }
+        },
     )
 }
 

@@ -59,6 +59,9 @@ data class DownloadItem(
     val videoHeight: Int = 0,          // 0 = best available
     val percent: Float = -1f,          // used by video downloads (yt-dlp reports a percentage, not bytes)
     val files: List<String> = emptyList(),   // finished output files, relative to the work dir (torrent/video)
+    val referer: String? = null,       // set when the link was grabbed from a web page (in-app browser)
+    val cookie: String? = null,
+    val userAgent: String? = null,
 ) {
     val category: FileCategory get() = categoryFor(fileName)
     val progress: Float

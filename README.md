@@ -30,12 +30,20 @@ since ~2017. (Universal is large because it bundles python, ffmpeg and libtorren
 | **BitTorrent**: magnet links, .torrent URLs, .torrent files (DHT, trackers, PEX, uTP) | Yes (new) |
 | **Video / audio** from YouTube, Vimeo, TikTok, X, Instagram, Reddit and ~1000 more sites; quality pick, MP3 | Yes (new) |
 | Update yt-dlp from the menu (sites change often) | Yes (new) |
+| **In-app browser that finds media** (globe icon): sniffs videos, audio, HLS/DASH streams and file links on a page; "Grab (N)" list; one-tap download with the page's Referer / cookies / User-Agent; "Grab whole page" via yt-dlp; desktop-site toggle; magnet links and downloads served by the page are captured | Yes (new) |
 | Foreground notification with Pause-all, completion notifications | Yes |
+| Browser tabs, ad blocker, bookmarks/history, full-screen video | **No** (single tab for now) |
 | FTP / FTPS | **No** |
 | Scheduler (start at a time) | **No** |
 | PAC proxy scripts | **No** |
 | 86 languages / RTL | **No** (English) |
 | Tray, shutdown-when-done, browser extension, CLI, automation API | **No** (desktop concepts) |
+
+## Using the browser
+Tap the globe icon (or "Open in browser" in the Add dialog, which also works for shared links). Open the page, **play the
+video**, then tap **Grab (N)** and choose what to download. If nothing shows, play the video first; many sites only request
+the stream when you press play. DRM-protected streams (Netflix, Disney+, etc.) cannot be downloaded, and you should only grab
+content you have the right to save.
 
 ## Speed
 - Each segment now gets its **own TCP connection** (HTTP/1.1). Before, OkHttp's HTTP/2 would have squeezed all

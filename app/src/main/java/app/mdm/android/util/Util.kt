@@ -83,6 +83,8 @@ object Names {
 
     fun detectKind(url: String): Kind {
         if (isTorrentLike(url)) return Kind.TORRENT
+        val path = url.substringBefore('?').lowercase()
+        if (path.endsWith(".m3u8") || path.endsWith(".mpd")) return Kind.VIDEO
         val host = runCatching { Uri.parse(url).host?.lowercase() }.getOrNull() ?: return Kind.HTTP
         return if (videoHosts.any { host == it || host.endsWith(".$it") }) Kind.VIDEO else Kind.HTTP
     }

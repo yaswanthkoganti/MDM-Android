@@ -137,9 +137,11 @@ class DownloadTask(
 
     private fun request(range: String?): Request {
         val b = Request.Builder().url(item.url)
-            .header("User-Agent", UA)
+            .header("User-Agent", item.userAgent?.takeIf { it.isNotBlank() } ?: UA)
             .header("Accept-Encoding", "identity")
         if (range != null) b.header("Range", range)
+        item.referer?.takeIf { it.isNotBlank() }?.let { b.header("Referer", it) }
+        item.cookie?.takeIf { it.isNotBlank() }?.let { b.header("Cookie", it) }
         val user = item.username
         if (!user.isNullOrEmpty()) b.header("Authorization", Credentials.basic(user, item.password ?: ""))
         return b.build()

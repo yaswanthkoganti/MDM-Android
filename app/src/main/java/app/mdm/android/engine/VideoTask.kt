@@ -68,7 +68,13 @@ class VideoTask(
             workDir.mkdirs()
 
             val req = YoutubeDLRequest(item.url)
-            req.addOption("-o", File(workDir, "%(title).150B.%(ext)s").absolutePath)
+            val template = if (item.autoName) "%(title).150B.%(ext)s" else
+                item.fileName.replace(Regex("\\.(mp4|mkv|webm|mp3|m4a)$", RegexOption.IGNORE_CASE), "")
+                    .take(150).replace("%", "%%") + ".%(ext)s"
+            req.addOption("-o", File(workDir, template).absolutePath)
+            item.referer?.takeIf { it.isNotBlank() }?.let { req.addOption("--referer", it) }
+            item.userAgent?.takeIf { it.isNotBlank() }?.let { req.addOption("--user-agent", it) }
+            item.cookie?.takeIf { it.isNotBlank() }?.let { req.addOption("--add-header", "Cookie:$it") }
             req.addOption("--no-playlist")
             req.addOption("--no-mtime")
             req.addOption("-N", connections.coerceIn(1, 16).toString())
