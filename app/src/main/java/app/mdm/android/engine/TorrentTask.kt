@@ -64,7 +64,7 @@ class TorrentTask(
         saveDir.mkdirs()
         sm.downloadRateLimit(if (speedLimitBps > 0) speedLimitBps.toInt() else 0)
         sm.download(ti, saveDir)
-        val hash = ti.infoHashV1()
+        val hash = ti.infoHash()
 
         var finished = false
         while (!stopped) {
